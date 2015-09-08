@@ -1,4 +1,9 @@
 
+1.1.0 / 2015-09-08
+==================
+
+  * add experimental support for interpolated event names
+
 1.0.3 / 2015-06-30
 ==================
 
