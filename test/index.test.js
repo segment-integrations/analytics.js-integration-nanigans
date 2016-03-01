@@ -9,7 +9,7 @@ describe('Nanigans', function() {
   var nanigans;
   var analytics;
   var options = {
-    appId: 123,
+    appId: 58557, // this is actual test account app Id
     events: [
       {
         key: 'testEvent1',
@@ -21,15 +21,29 @@ describe('Nanigans', function() {
       {
         key: 'testEvent1',
         value: {
-          type: 'user',
+          type: 'install',
           name: 'register'
         }
       },
       {
-        key: 'completed order',
+        key: 'teemski',
+        value: {
+          type: 'user',
+          name: 'pet'
+        }
+      },
+      {
+        key: 'Completed Order',
         value: {
           type: 'purchase',
           name: 'main'
+        }
+      },
+      {
+        key: 'Completed Order',
+        value: {
+          type: 'purchase',
+          name: 'Purchased with {{ properties.coupon }}'
         }
       },
       {
@@ -59,7 +73,29 @@ describe('Nanigans', function() {
 
   it('should have the correct settings', function() {
     analytics.compare(Nanigans, integration('Nanigans')
-      .option('appId', ''));
+      .global('NaN_api')
+      .option('appId', '')
+      .option('events', {}));
+  });
+
+  describe('before loading', function() {
+    beforeEach(function() {
+      analytics.stub(nanigans, 'load');
+      analytics.initialize();
+      analytics.page();
+    });
+
+    describe('#initialize', function() {
+      it('should create window.NaN_api', function() {
+        analytics.assert(window.NaN_api instanceof Array);
+      });
+    });
+  });
+
+  describe('loading', function() {
+    it('should load', function(done) {
+      analytics.load(nanigans, done);
+    });
   });
 
   describe('after loading', function() {
@@ -69,92 +105,179 @@ describe('Nanigans', function() {
       analytics.page();
     });
 
+    it('should create window.NaN_api', function() {
+      analytics.assert(window.NaN_api);
+    });
+
     describe('#page', function() {
-      beforeEach(function() {
-        analytics.spy(nanigans, 'load');
+      beforeEach(function(){
+        analytics.stub(window.NaN_api, 'push');
       });
 
-      it('should send page views', function() {
+      it('should send stock page view data', function() {
         analytics.page('My Event');
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=visit&name=landing">');
+        analytics.called(window.NaN_api.push, ['visit', 'landing']);
+      });
+
+      it('should send stock page view data even if props passed in', function() {
+        analytics.page('My Event', { referrer: 'teemo.com' });
+        analytics.called(window.NaN_api.push, ['visit', 'landing']);
+      });
+    });
+
+    describe('#identify', function() {
+      beforeEach(function(){
+        analytics.stub(window.NaN_api, 'push');
+      });
+
+      it('should send appId and userId only', function() {
+        analytics.identify('813', { pet: 'Teemo' });
+        analytics.called(window.NaN_api.push, [58557, '813']);
       });
     });
 
     describe('#track', function() {
-      beforeEach(function() {
-        analytics.spy(nanigans, 'load');
-        analytics.assert(analytics.user().id() == null);
+      beforeEach(function(){
+        analytics.stub(window.NaN_api, 'push');
       });
 
-      it('should not track if user id is missing', function() {
-        nanigans.options.events = { event: 'mappedEvent' };
+      it('should send email hash', function() {
+        analytics.track('testEvent1', { email: 'email@example.com' });
+        analytics.called(window.NaN_api.push, ['user', 'invite', null, {
+          'Segment-integration': true,
+          ut1: '2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3'
+        }]);
+      });
+
+      it('should not track unmapped event', function() {
         analytics.track('event');
-        analytics.didNotCall(nanigans.load);
+        analytics.didNotCall(window.NaN_api.push);
       });
 
-      it('should not track unnamed event', function() {
-        analytics.user().id('id');
-        analytics.track('event');
-        analytics.didNotCall(nanigans.load);
+      it('should track mapped event', function() {
+        analytics.track('teemski', { owner: 'Han' });
+        analytics.called(window.NaN_api.push, ['user', 'pet', null, {
+          'Segment-integration': true,
+          owner: 'Han'
+        }]);
       });
 
-      it('should track named event', function() {
-        analytics.user().id('id');
-        analytics.user().traits({ email: 'email@example.com' });
+      it('should pass null as userId if none provided', function() {
+        analytics.track('teemski', { owner: 'Han' });
+        analytics.called(window.NaN_api.push, ['user', 'pet', null, {
+          'Segment-integration': true,
+          owner: 'Han'
+        }]);
+      });
+
+      it('should userId if provided', function() {
+        analytics.user().id('813');
+        analytics.track('teemski', { owner: 'Han' });
+        analytics.called(window.NaN_api.push, ['user', 'pet', '813', {
+          'Segment-integration': true,
+          owner: 'Han'
+        }]);
+      });
+
+      it('should track multiple mapped events', function() {
+        analytics.user().id('813');
         analytics.track('testEvent1');
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&user_id=id&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
+        analytics.called(window.NaN_api.push, ['user', 'invite', '813', {
+          'Segment-integration': true
+        }]);
+        analytics.called(window.NaN_api.push, ['install', 'register', '813', {
+          'Segment-integration': true
+        }]);
       });
 
       it('should interpolate mapped event name template strings', function() {
-        analytics.user().id('id');
-        analytics.user().traits({ email: 'email@example.com' });
+        analytics.user().id('813');
         analytics.track('Watched Game', { league: 'NFL', sport: 'Football' });
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=visit&name=Watched%20NFL%20Football%20Game&user_id=id&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
+        analytics.called(window.NaN_api.push, ['visit', 'Watched NFL Football Game', '813', {
+          league: 'NFL',
+          sport: 'Football',
+          'Segment-integration': true
+        }]);
       });
 
-      it('should track multiple events', function() {
-        analytics.user().id('id');
-        analytics.user().traits({ email: 'email@example.com' });
-        analytics.track('testEvent1');
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&user_id=id&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=register&user_id=id&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
-      });
-
-      it('should send completed order if the user has an id', function() {
-        analytics.user().id('id');
-        analytics.user().traits({ email: 'email@example.com' });
-
-        analytics.track('completed order', {
-          orderId: '2f2bfd58',
-          total: 19.98,
-          tax: 0,
-          shipping: 0,
-          products: [{
-            name: 'sony pulse',
-            sku: 'f9bf17a9',
-            quantity: 1,
-            price: 9.99
-          }, {
-            name: 'ps4',
-            sku: 'de96f84c',
-            quantity: 1,
-            price: 9.99
-          }]
+      it('should send Completed Order', function() {
+        analytics.track('Completed Order', {
+          orderId: '50314b8e9bcf000000000000',
+          total: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
+        analytics.called(window.NaN_api.push, ['purchase', 'main', [1900, 600], {
+          'Segment-integration': true,
+          sku: ['45790-32', '46493-32'],
+          qty: [1, 2],
+          unique: '50314b8e9bcf000000000000'
+        }]);
+      });
 
-        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
-          + '?app_id=123'
-          + '&type=purchase'
-          + '&name=main'
-          + '&user_id=id'
-          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3'
-          + '&unique=2f2bfd58'
-          + '&qty[0]=1'
-          + '&qty[1]=1'
-          + '&value[0]=9.99'
-          + '&value[1]=9.99'
-          + '&sku[0]=f9bf17a9'
-          + '&sku[1]=de96f84c') + '">');
+      it('should send multiple mapped Completed Order', function() {
+        analytics.track('Completed Order', {
+          orderId: '50314b8e9bcf000000000000',
+          total: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
+        });
+        analytics.called(window.NaN_api.push, ['purchase', 'main', [1900, 600], {
+          'Segment-integration': true,
+          sku: ['45790-32', '46493-32'],
+          qty: [1, 2],
+          unique: '50314b8e9bcf000000000000'
+        }]);
+        analytics.called(window.NaN_api.push, ['purchase', 'Purchased with hasbros', [1900, 600], {
+          'Segment-integration': true,
+          sku: ['45790-32', '46493-32'],
+          qty: [1, 2],
+          unique: '50314b8e9bcf000000000000'
+        }]);
       });
     });
   });
