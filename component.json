@@ -6,15 +6,15 @@
   "license": "LicenseRef-LICENSE",
   "main": "lib/index.js",
   "dependencies": {
-    "segmentio/facade": "1.x",
-    "segmentio/analytics.js-integration": "^1.0.0",
+    "segmentio/facade": "^2.2.2",
+    "segmentio/analytics.js-integration": "^1.1.0",
     "ianstormtaylor/to-no-case": "0.1.2",
     "component/querystring": "1.3.0",
     "segmentio/js-sha256": "0.1.2"
   },
   "development": {
-    "segmentio/analytics.js-core": "^2.10.0",
+    "segmentio/analytics.js-core": "^2.12.0",
     "segmentio/clear-env": "^0.2.0",
-    "segmentio/analytics.js-integration-tester": "1.4.x"
+    "segmentio/analytics.js-integration-tester": "^1.5.0"
   }
 }
