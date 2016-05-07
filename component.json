@@ -2,7 +2,7 @@
   "name": "analytics.js-integration-nanigans",
   "repo": "segment-integrations/analytics.js-integration-nanigans",
   "description": "The Nanigans analytics.js integration.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "LicenseRef-LICENSE",
   "main": "lib/index.js",
   "dependencies": {
