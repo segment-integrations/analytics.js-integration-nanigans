@@ -106,6 +106,13 @@ describe('Nanigans', function() {
         analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&user_id=id&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
       });
 
+      it('should track named event even without a userId', function() {
+        analytics.user().id(null);
+        analytics.user().traits({ email: 'email@example.com' });
+        analytics.track('testEvent1');
+        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&user_id=&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
+      });
+
       it('should interpolate mapped event name template strings', function() {
         analytics.user().id('id');
         analytics.user().traits({ email: 'email@example.com' });
