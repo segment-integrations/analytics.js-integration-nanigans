@@ -27,9 +27,16 @@ describe('Nanigans', function() {
         }
       },
       {
-        key: 'completed order',
+        key: 'Completed Order',
         value: {
           type: 'purchase',
+          name: 'main'
+        }
+      },
+      {
+        key: 'Product Added',
+        value: {
+          type: 'user',
           name: 'main'
         }
       },
@@ -110,7 +117,7 @@ describe('Nanigans', function() {
         analytics.user().id(null);
         analytics.user().traits({ email: 'email@example.com' });
         analytics.track('testEvent1');
-        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&user_id=&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
+        analytics.loaded('<img src="http://api.nanigans.com/event.php?app_id=123&type=user&name=invite&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3">');
       });
 
       it('should interpolate mapped event name template strings', function() {
@@ -163,6 +170,65 @@ describe('Nanigans', function() {
           + '&value[1]=9.99'
           + '&sku[0]=f9bf17a9'
           + '&sku[1]=de96f84c') + '">');
+      });
+
+      it('should send completed order if the user does not have an id', function() {
+        analytics.user().traits({ email: 'email@example.com' });
+
+        analytics.track('completed order', {
+          orderId: '2f2bfd58',
+          total: 19.98,
+          tax: 0,
+          shipping: 0,
+          products: [{
+            name: 'sony pulse',
+            sku: 'f9bf17a9',
+            quantity: 1,
+            price: 9.99
+          }, {
+            name: 'ps4',
+            sku: 'de96f84c',
+            quantity: 1,
+            price: 9.99
+          }]
+        });
+
+        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
+          + '?app_id=123'
+          + '&type=purchase'
+          + '&name=main'
+          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3'
+          + '&unique=2f2bfd58'
+          + '&qty[0]=1'
+          + '&qty[1]=1'
+          + '&value[0]=9.99'
+          + '&value[1]=9.99'
+          + '&sku[0]=f9bf17a9'
+          + '&sku[1]=de96f84c') + '">');
+      });
+
+      it('should send add to cart if the user does not have an id', function() {
+        analytics.user().traits({ email: 'email@example.com' });
+
+        analytics.track('Product Added', {
+          cart_id: 'skdjsidjsdkdj29j',
+          product_id: '507f1f77bcf86cd799439011',
+          sku: 'G-32',
+          category: 'Games',
+          name: 'Monopoly: 3rd Edition',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.9,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3
+        });
+
+        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
+          + '?app_id=123'
+          + '&type=user'
+          + '&name=main'
+          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3') + '">');
       });
     });
   });
