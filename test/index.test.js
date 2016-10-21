@@ -207,6 +207,32 @@ describe('Nanigans', function() {
           + '&sku[1]=de96f84c') + '">');
       });
 
+      it('should send add to cart if the user has an id', function() {
+        analytics.user().id('id');
+        analytics.user().traits({ email: 'email@example.com' });
+
+        analytics.track('Product Added', {
+          cart_id: 'skdjsidjsdkdj29j',
+          product_id: '507f1f77bcf86cd799439011',
+          sku: 'G-32',
+          category: 'Games',
+          name: 'Monopoly: 3rd Edition',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.9,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3
+        });
+
+        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
+          + '?app_id=123'
+          + '&type=user'
+          + '&name=main'
+          + '&user_id=id'
+          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3') + '">');
+      });
+
       it('should send add to cart if the user does not have an id', function() {
         analytics.user().traits({ email: 'email@example.com' });
 
