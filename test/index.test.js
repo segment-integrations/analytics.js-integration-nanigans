@@ -207,7 +207,7 @@ describe('Nanigans', function() {
           + '&sku[1]=de96f84c') + '">');
       });
 
-      it('should send add to cart if the user has an id', function() {
+      it.only('should send add to cart if the user has an id', function() {
         analytics.user().id('id');
         analytics.user().traits({ email: 'email@example.com' });
 
@@ -230,6 +230,7 @@ describe('Nanigans', function() {
           + '&type=user'
           + '&name=main'
           + '&user_id=id'
+          + '&sku=G-32'
           + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3') + '">');
       });
 
