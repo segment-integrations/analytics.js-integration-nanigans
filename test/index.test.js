@@ -37,7 +37,7 @@ describe('Nanigans', function() {
         key: 'Product Added',
         value: {
           type: 'user',
-          name: 'main'
+          name: 'add_to_cart'
         }
       },
       {
@@ -207,7 +207,7 @@ describe('Nanigans', function() {
           + '&sku[1]=de96f84c') + '">');
       });
 
-      it.only('should send add to cart if the user has an id', function() {
+      it('should send add to cart if the user has an id', function() {
         analytics.user().id('id');
         analytics.user().traits({ email: 'email@example.com' });
 
@@ -228,10 +228,10 @@ describe('Nanigans', function() {
         analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
           + '?app_id=123'
           + '&type=user'
-          + '&name=main'
+          + '&name=add_to_cart'
           + '&user_id=id'
-          + '&sku=G-32'
-          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3') + '">');
+          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3'
+          + '&sku=G-32') + '">');
       });
 
       it('should send add to cart if the user does not have an id', function() {
@@ -254,8 +254,9 @@ describe('Nanigans', function() {
         analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
           + '?app_id=123'
           + '&type=user'
-          + '&name=main'
-          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3') + '">');
+          + '&name=add_to_cart'
+          + '&ut1=2a539d6520266b56c3b0c525b9e6128858baeccb5ee9b694a2906e123c8d6dd3'
+          + '&sku=G-32') + '">');
       });
     });
   });
