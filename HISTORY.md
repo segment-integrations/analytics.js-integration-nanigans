@@ -1,3 +1,8 @@
+2.1.0 / 2016-11-09
+==================
+
+  * Make it so user_id is only passed in the pixel querystring when it is available. 
+
 2.0.0 / 2016-06-21
 ==================
 
