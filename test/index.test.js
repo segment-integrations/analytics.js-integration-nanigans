@@ -150,7 +150,7 @@ describe('Nanigans', function() {
           }]
         });
 
-        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php'
+        analytics.loaded('<img src="' + encodeURI('http://api.nanigans.com/event.php')
           + '?app_id=123'
           + '&type=purchase'
           + '&name=main'
@@ -162,7 +162,7 @@ describe('Nanigans', function() {
           + '&value[0]=9.99'
           + '&value[1]=9.99'
           + '&sku[0]=f9bf17a9'
-          + '&sku[1]=de96f84c') + '">');
+          + '&sku[1]=de96f84c' + '">');
       });
 
       it('should send Order Completed if the user does not have an id', function() {
