@@ -1,3 +1,9 @@
+2.2.0 / 2017-03-20
+==================
+
+  * Remove qs dependancy.
+  * Use custom paramString method to generate a querystring.
+
 2.1.0 / 2016-11-09
 ==================
 
